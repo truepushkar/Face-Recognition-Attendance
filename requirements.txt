@@ -1,0 +1,4 @@
+Flask
+numpy
+face_recognition
+pandas

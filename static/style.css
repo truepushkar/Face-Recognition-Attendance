@@ -1,0 +1,421 @@
+/* static/style.css */
+
+/* =========================================
+   Global Variables
+========================================= */
+:root {
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-gray: #f8f9fa;
+    --medium-gray: #e9ecef;
+    --dark-gray: #343a40;
+    --text-color: #212529;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    --bg-color: #f4f7f9;
+    --card-bg: #ffffff;
+    --subtext-color: #6c757d;
+}
+
+/* Dark mode overrides */
+body.dark-mode {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #eaeaea;
+    --subtext-color: #bbbbbb;
+    --medium-gray: #333;
+    --light-gray: #1a1a1a;
+    --box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+}
+
+/* =========================================
+   Base Styles
+========================================= */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+}
+
+h1 {
+    color: #1a253c;
+    margin-bottom: 0.5rem;
+}
+
+body.dark-mode h1 {
+    color: #f5f5f5;
+}
+
+p {
+    color: var(--subtext-color);
+    margin-bottom: 2rem;
+}
+
+/* =========================================
+   Video Container
+========================================= */
+.video-container {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    background: #000;
+    border: 2px solid var(--medium-gray);
+}
+
+video {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform: scaleX(-1); /* Mirror view */
+}
+
+.scan-line {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.8), transparent);
+    animation: scan 2s infinite linear;
+}
+@keyframes scan {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+
+/* =========================================
+   Buttons
+========================================= */
+button, .button-logout {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    margin: 5px;
+    text-decoration: none;
+    display: inline-block;
+}
+button:hover, .button-logout:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+.delete-btn { background-color: var(--danger-color); }
+.delete-btn:hover { background-color: #a71d2a; }
+.rename-btn { background-color: var(--warning-color); color: #212529; }
+.rename-btn:hover { background-color: #d39e00; }
+.button-logout { background-color: var(--danger-color); }
+
+/* Dark Mode button */
+.darkmode-btn {
+    background: transparent;
+    border: 2px solid var(--medium-gray);
+    color: var(--text-color);
+    font-size: 1.2rem;
+    padding: 6px 12px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.darkmode-btn:hover {
+    background-color: var(--medium-gray);
+}
+
+/* =========================================
+   Result Container
+========================================= */
+#result-container {
+    margin-top: 2rem;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+#result-container.success { background-color: #e8f5e9; color: #2e7d32; }
+#result-container.error { background-color: #ffebee; color: #c62828; }
+#result-container.processing { background-color: #e3f2fd; color: #1565c0; }
+
+body.dark-mode #result-container.success { background-color: rgba(40,167,69,0.15); }
+body.dark-mode #result-container.error { background-color: rgba(220,53,69,0.15); }
+body.dark-mode #result-container.processing { background-color: rgba(0,123,255,0.15); }
+
+/* =========================================
+   Links
+========================================= */
+.admin-link {
+    display: inline-block;
+    margin-top: 2rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+.admin-link:hover {
+    text-decoration: underline;
+}
+
+/* =========================================
+   Card
+========================================= */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--medium-gray);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
+    box-shadow: var(--box-shadow);
+    transition: background-color 0.3s, color 0.3s;
+}
+.card h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+.card p { color: var(--subtext-color); }
+
+/* =========================================
+   Add Student Form
+========================================= */
+#add-student-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+#add-student-form input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+/* =========================================
+   Student List
+========================================= */
+#student-list {
+    list-style-type: none;
+    padding: 0;
+}
+#student-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+#student-list li:last-child {
+    border-bottom: none;
+}
+
+/* =========================================
+   Analytics Page
+========================================= */
+.analytics-link {
+    font-size: 0.9rem;
+    font-weight: normal;
+    margin-left: 8px;
+    text-decoration: none;
+    color: #0056b3;
+}
+.analytics-link:hover { text-decoration: underline; }
+
+.analytics-container {
+    max-width: 800px;
+}
+.summary-card {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+}
+.summary-card h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+.summary-card p {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+#attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+#attendance-table th, #attendance-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+#attendance-table th {
+    background-color: #f9fafb;
+}
+#attendance-table tbody tr:hover {
+    background-color: #f4f7f9;
+}
+body.dark-mode #attendance-table th {
+    background-color: #2a2a2a;
+}
+body.dark-mode #attendance-table tbody tr:hover {
+    background-color: #1e1e1e;
+}
+
+/* =========================================
+   Main Layout
+========================================= */
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--medium-gray);
+}
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--dark-gray);
+}
+.header-link {
+    background: var(--dark-gray);
+    color: white;
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+.header-link:hover {
+    background-color: #555;
+}
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+/* =========================================
+   Forms
+========================================= */
+input[type="text"], input[type="password"], input[type="file"] {
+    width: 100%; padding: 12px; margin-bottom: 1rem;
+    border: 1px solid #ced4da; border-radius: var(--border-radius);
+    font-size: 1rem; box-sizing: border-box;
+    background: transparent;
+    color: var(--text-color);
+}
+
+/* =========================================
+   Login Page
+========================================= */
+.login-container { max-width: 450px; margin: 5rem auto; }
+.login-container .card { text-align: center; }
+
+/* =========================================
+   Admin Dashboard
+========================================= */
+.container { max-width: 800px; margin: auto; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; }
+#student-list { list-style: none; padding: 0; text-align: left; }
+#student-list li { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--medium-gray); }
+
+/* =========================================
+   Alerts
+========================================= */
+.alert { padding: 1rem; margin-bottom: 1rem; border-radius: var(--border-radius); }
+.alert-success { background-color: #d4edda; color: #155724; }
+.alert-danger { background-color: #f8d7da; color: #721c24; }
+.alert-info { background-color: #d1ecf1; color: #0c5460; }
+
+body.dark-mode .alert-success { background: rgba(40,167,69,0.2); color: #7ddc9b; }
+body.dark-mode .alert-danger { background: rgba(220,53,69,0.2); color: #ff6b81; }
+body.dark-mode .alert-info { background: rgba(23,162,184,0.2); color: #5cd6e3; }
+
+/* =========================================
+   Responsive
+========================================= */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================
+   New Layout for Index Page
+========================================= */
+.layout-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.big-card {
+  height: 100%;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Header dark mode button placement */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Adjust for mobile */
+@media (max-width: 900px) {
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
+  .right-column {
+    flex-direction: column;
+  }
+}

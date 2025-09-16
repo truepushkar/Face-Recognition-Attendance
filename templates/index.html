@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Recognition Attendance</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="main-container">
+    <header>
+      <h1>Face Recognition Attendance System</h1>
+      <div class="header-actions">
+        <button id="darkmode-toggle" class="darkmode-btn">🌙</button>
+      </div>
+    </header>
+
+    <div class="layout-grid">
+      <!-- Left Side: Mark Attendance -->
+      <div class="card big-card">
+        <h2>Mark Attendance</h2>
+        <p>Center your face in the frame and click the button below.</p>
+        <div class="video-container">
+          <video id="video" width="640" height="480" autoplay playsinline></video>
+          <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+          <div class="scan-line"></div>
+        </div>
+        <button id="capture-btn">📷 Scan Face</button>
+        <div id="result-container">
+          <p>Status: <span id="result-name">Awaiting Scan</span></p>
+        </div>
+      </div>
+
+      <!-- Right Side: Analytics + Admin -->
+      <div class="right-column">
+        <div class="card">
+          <h2>Check Student Analytics</h2>
+          <p>Enter a student's full name to view their attendance history.</p>
+          <form id="analytics-form">
+            <input type="text" id="analytics-name-input" placeholder="e.g., elon_musk" required>
+            <button type="submit">📊 View History</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Admin Panel</h2>
+          <p>Manage students and attendance data.</p>
+          <a href="/admin" class="header-link">Go to Admin Dashboard →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dark Mode Toggle
+    const toggleBtn = document.getElementById("darkmode-toggle");
+    const body = document.body;
+
+    if (localStorage.getItem("theme") === "dark") {
+      body.classList.add("dark-mode");
+      toggleBtn.textContent = "☀️";
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      body.classList.toggle("dark-mode");
+      if (body.classList.contains("dark-mode")) {
+        toggleBtn.textContent = "☀️";
+        localStorage.setItem("theme", "dark");
+      } else {
+        toggleBtn.textContent = "🌙";
+        localStorage.setItem("theme", "light");
+      }
+    });
+  </script>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

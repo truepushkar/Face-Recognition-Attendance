@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Analytics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container analytics-container">
+        <h1>Attendance Analytics for <span id="student-name-title">{{ student_name.replace('_', ' ') }}</span></h1>
+        
+        <div class="card summary-card">
+            <h2>Total Days Present</h2>
+            <p id="total-days">--</p>
+        </div>
+
+        <div class="card">
+            <h2>Attendance Over Time</h2>
+            <div class="chart-container">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Date-wise Attendance Log</h2>
+            <table id="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time of First Entry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+        
+        <a href="/" class="admin-link">&larr; Back to Attendance Page</a>
+    </div>
+
+    <script>
+        const studentName = "{{ student_name }}";
+    </script>
+    <script src="{{ url_for('static', filename='analytics.js') }}"></script>
+</body>
+</html>

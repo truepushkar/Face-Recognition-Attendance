@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Admin Dashboard</h1>
+            <a href="{{ url_for('logout') }}" class="button-logout">Logout</a>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <h2>Add New Student</h2>
+            <form id="add-student-form">
+                <input type="text" id="new-student-name" placeholder="Enter student's name (e.g., elon_musk)" required>
+                <input type="file" id="new-student-image" accept="image/jpeg, image/png" required>
+                <button type="submit">Add Student</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Manage Known Students</h2>
+            <ul id="student-list">
+                </ul>
+        </div>
+        
+        <a href="/" class="admin-link">&larr; Back to Home Page</a>
+    </div>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
