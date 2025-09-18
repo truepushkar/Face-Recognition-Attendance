@@ -111,6 +111,3 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ## License
 This project is licensed under the GNU GENERAL PUBLIC LICENSE.
-
-## TODO
-- Improved UI/UX
