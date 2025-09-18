@@ -1,4 +1,4 @@
-Flask
-numpy
+flask
 face_recognition
-pandas
+numpy
+mysql-connector-python
