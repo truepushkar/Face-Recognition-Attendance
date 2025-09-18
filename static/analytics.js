@@ -1,9 +1,15 @@
 // static/analytics.js
 
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log("Analytics script loaded");
+
     const totalDaysEl = document.getElementById('total-days');
-    const tableBody = document.querySelector('#attendance-table tbody');
+    const tableBody = document.getElementById('attendance-table'); // fixed selector
     const chartCanvas = document.getElementById('attendanceChart');
+
+    console.log("totalDaysEl:", totalDaysEl);
+    console.log("tableBody:", tableBody);
+    console.log("chartCanvas:", chartCanvas);
 
     if (!studentName) {
         console.error('Student name not provided.');
@@ -28,80 +34,87 @@ document.addEventListener('DOMContentLoaded', async () => {
             tableBody.innerHTML = row;
         } else {
             data.records.forEach(record => {
+                const time = formatTime(record.timestamp);
+
                 const row = `
                     <tr>
                         <td>${record.date}</td>
-                        <td>${new Date(record.timestamp).toLocaleTimeString()}</td>
+                        <td>${time}</td>
                     </tr>
                 `;
                 tableBody.insertAdjacentHTML('beforeend', row);
             });
         }
-        
+
         // 3. Prepare data and render the chart
         renderChart(data.records, chartCanvas);
 
     } catch (error) {
         console.error('Failed to load analytics:', error);
-        totalDaysEl.textContent = 'Error';
-        tableBody.innerHTML = `<tr><td colspan="2">Could not load data.</td></tr>`;
+        if (totalDaysEl) totalDaysEl.textContent = 'Error';
+        if (tableBody) tableBody.innerHTML = `<tr><td colspan="2">Could not load data.</td></tr>`;
     }
 });
 
+// --- Helper: format "YYYY-MM-DD HH:MM:SS" into "H:MM AM/PM"
+function formatTime(timestamp) {
+    if (!timestamp) return "--";
+
+    const parts = timestamp.split(" "); 
+    if (parts.length < 2) return timestamp;
+
+    const timePart = parts[1]; // "HH:MM:SS"
+    const [hours, minutes] = timePart.split(":");
+    let h = parseInt(hours, 10);
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+
+    return `${h}:${minutes} ${ampm}`;
+}
+
 function renderChart(records, canvas) {
-    if (!canvas || records.length === 0) return;
+  if (!canvas || records.length === 0) return;
 
-    // Process data for the chart: count attendance per date
-    const attendanceByDate = records.reduce((acc, record) => {
-        acc[record.date] = (acc[record.date] || 0) + 1;
-        return acc;
-    }, {});
+  const attendanceByDate = records.reduce((acc, record) => {
+    acc[record.date] = (acc[record.date] || 0) + 1;
+    return acc;
+  }, {});
 
-    const chartLabels = Object.keys(attendanceByDate).sort();
-    const chartData = chartLabels.map(label => attendanceByDate[label]);
+  const chartLabels = Object.keys(attendanceByDate).sort();
+  const chartData = chartLabels.map(label => attendanceByDate[label]);
 
-    new Chart(canvas, {
-        type: 'bar', // or 'line'
-        data: {
-            labels: chartLabels,
-            datasets: [{
-                label: 'Attendance Count',
-                data: chartData,
-                backgroundColor: 'rgba(0, 123, 255, 0.5)',
-                borderColor: 'rgba(0, 123, 255, 1)',
-                borderWidth: 1,
-                barThickness: 20,
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1 // Ensure y-axis only shows whole numbers
-                    }
-                },
-                x: {
-                   ticks: {
-                        maxRotation: 45,
-                        minRotation: 45
-                   }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `Present`;
-                        }
-                    }
-                }
-            },
-            responsive: true,
-            maintainAspectRatio: false
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Attendance',
+        data: chartData,
+        fill: true,
+        borderColor: 'rgb(99, 102, 241)',
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: 'rgb(99, 102, 241)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 }
         }
-    });
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `Present: ${ctx.formattedValue}`
+          }
+        }
+      }
+    }
+  });
 }

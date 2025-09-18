@@ -1,31 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="antialiased">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Biometric Face Attendance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    :root { --glass-bg: rgba(255,255,255,0.06); }
+    .glass { background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); backdrop-filter: blur(6px); }
+    .glass-border { border: 1px solid rgba(255,255,255,0.06); }
+    .card-shadow { box-shadow: 0 8px 30px rgba(2,6,23,0.12); }
+  </style>
 </head>
-<body>
-    <div class="container login-container">
-        <div class="card">
-            <h1>Admin Panel Login</h1>
-            <p>Please enter the password to manage students.</p>
-            
-            {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-                {% for category, message in messages %}
-                  <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-6">
 
-            <form action="{{ url_for('login_page') }}" method="post">
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Login</button>
-            </form>
-             <a href="/" class="admin-link">&larr; Back to Home</a>
-        </div>
+  <main class="w-full max-w-md">
+    <div class="rounded-2xl p-8 glass glass-border card-shadow text-center">
+      <h1 class="text-2xl font-bold mb-2">Admin Panel Login</h1>
+      <p class="text-slate-300 mb-6">Enter the admin password to manage students.</p>
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-4 space-y-2">
+            {% for category, message in messages %}
+              <div class="p-3 rounded-xl glass-border glass card-shadow text-sm 
+                {% if category == 'success' %} bg-emerald-600/40 text-emerald-200 
+                {% elif category == 'error' %} bg-rose-600/40 text-rose-200 
+                {% else %} bg-slate-700/40 text-slate-200 {% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <!-- Login form -->
+      <form action="{{ url_for('login_page') }}" method="post" class="space-y-4">
+        <input type="password" name="password" placeholder="Password" required
+               class="w-full px-3 py-2 rounded-xl bg-slate-800/40 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500" />
+        <button type="submit"
+                class="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition shadow-lg">
+          Login
+        </button>
+      </form>
+
+      <!-- Back to Home -->
+      <a href="/" class="inline-flex items-center gap-2 mt-6 text-slate-400 hover:text-slate-200 transition">
+        <i data-feather="arrow-left"></i> Back to Home
+      </a>
     </div>
+    <footer class="mt-6 text-center text-slate-500 text-xs">Admin access only</footer>
+  </main>
+
+  <script>feather.replace();</script>
 </body>
 </html>

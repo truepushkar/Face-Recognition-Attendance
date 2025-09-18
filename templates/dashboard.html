@@ -1,43 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="antialiased">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Biometric Face Attendance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    :root { --glass-bg: rgba(255,255,255,0.06); }
+    .glass { background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); backdrop-filter: blur(6px); }
+    .glass-border { border: 1px solid rgba(255,255,255,0.06); }
+    .card-shadow { box-shadow: 0 8px 30px rgba(2,6,23,0.12); }
+  </style>
 </head>
-<body>
-    <div class="container">
-        <div class="dashboard-header">
-            <h1>Admin Dashboard</h1>
-            <a href="{{ url_for('logout') }}" class="button-logout">Logout</a>
-        </div>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-            {% endif %}
-        {% endwith %}
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-6">
+  <main class="w-full max-w-5xl">
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+        <p class="mt-1 text-slate-300">Manage students, enroll faces, and control attendance system.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="{{ url_for('logout') }}" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 transition shadow-lg flex items-center gap-2">
+          <i data-feather="log-out" class="w-4 h-4"></i> Logout
+        </a>
+      </div>
+    </header>
 
-        <div class="card">
-            <h2>Add New Student</h2>
-            <form id="add-student-form">
-                <input type="text" id="new-student-name" placeholder="Enter student's name (e.g., elon_musk)" required>
-                <input type="file" id="new-student-image" accept="image/jpeg, image/png" required>
-                <button type="submit">Add Student</button>
-            </form>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6 space-y-2">
+          {% for category, message in messages %}
+            <div class="p-3 rounded-xl glass-border glass card-shadow text-sm 
+              {% if category == 'success' %} bg-emerald-600/40 text-emerald-200 
+              {% elif category == 'error' %} bg-rose-600/40 text-rose-200 
+              {% else %} bg-slate-700/40 text-slate-200 {% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
         </div>
+      {% endif %}
+    {% endwith %}
 
-        <div class="card">
-            <h2>Manage Known Students</h2>
-            <ul id="student-list">
-                </ul>
-        </div>
-        
-        <a href="/" class="admin-link">&larr; Back to Home Page</a>
+    <!-- Cards Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Add Student -->
+      <div class="rounded-2xl p-6 glass glass-border card-shadow">
+        <h2 class="text-lg font-semibold mb-3">Add New Student</h2>
+        <form id="add-student-form" class="space-y-3">
+          <input type="text" id="new-student-name" placeholder="e.g., elon_musk"
+                 required
+                 class="w-full px-3 py-2 rounded-xl bg-slate-800/40 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input type="file" id="new-student-image" accept="image/jpeg, image/png" required
+                 class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-indigo-600 file:text-white
+                        hover:file:bg-indigo-500"/>
+          <button type="submit" class="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition shadow-lg">Add Student</button>
+        </form>
+      </div>
+
+      <!-- Manage Students -->
+      <div class="rounded-2xl p-6 glass glass-border card-shadow">
+        <h2 class="text-lg font-semibold mb-3">Manage Known Students</h2>
+        <ul id="student-list" 
+            class="space-y-3 text-slate-200 text-sm max-h-72 overflow-auto">
+            <!-- JS will inject styled items here -->
+        </ul>
+      </div>
+
+
+    </section>
+
+    <!-- Back Link -->
+    <div class="mt-8 text-center">
+      <a href="/" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 transition">
+        <i data-feather="arrow-left"></i> Back to Home Page
+      </a>
     </div>
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+
+    <footer class="mt-8 text-center text-slate-500 text-sm">Admin controls for Biometric Face Attendance</footer>
+  </main>
+
+  <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+  <script>feather.replace();</script>
 </body>
 </html>

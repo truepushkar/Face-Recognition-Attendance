@@ -1,78 +1,356 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="antialiased">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Face Recognition Attendance</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Biometric Face Attendance — Modern Tailwind UI</title>
+  <meta name="description" content="Beautiful biometric face recognition attendance page built with Tailwind CSS, animations and accessible controls." />
+
+  <!-- Tailwind Play CDN (for prototypes) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Heroicons for inline SVGs (optional) -->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <style>
+    /* Extra custom CSS for subtle animations and scan effect */
+    :root { --glass-bg: rgba(255,255,255,0.06); }
+    .glass { background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); backdrop-filter: blur(6px); }
+
+    /* scan-line animation */
+    .scan-line {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.95), transparent);
+      transform: translateY(-100%);
+      animation: scan 2.1s linear infinite;
+    }
+    @keyframes scan {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    /* subtle pulse for processing */
+    .pulse-slow { animation: pulse 2.5s cubic-bezier(.4,0,.6,1) infinite; }
+
+    /* mirrored video (user-facing) */
+    video.mirror { transform: scaleX(-1); }
+
+    /* Nice card shadow */
+    .card-shadow { box-shadow: 0 8px 30px rgba(2,6,23,0.12); }
+
+    /* Prevent video stretch — maintain aspect */
+    .video-wrap { aspect-ratio: 4/3; }
+
+    /* small helpers */
+    .glass-border { border: 1px solid rgba(255,255,255,0.04); }
+  </style>
 </head>
-<body>
-  <div class="main-container">
-    <header>
-      <h1>Face Recognition Attendance System</h1>
-      <div class="header-actions">
-        <button id="darkmode-toggle" class="darkmode-btn">🌙</button>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-6">
+  <main class="w-full max-w-6xl">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Biometric Face Attendance</h1>
+        <p class="mt-1 text-slate-300">Fast and secure face recognition attendance.</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" aria-label="Toggle dark/light" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl glass-border glass hover:scale-105 transition">
+          <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+          <span class="text-slate-300 text-sm">Theme</span>
+        </button>
+
+        <a href="/admin" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 transition shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.657-1.343-3-3-3S6 9.343 6 11s1.343 3 3 3 3-1.343 3-3z"/></svg>
+          Admin
+        </a>
       </div>
     </header>
 
-    <div class="layout-grid">
-      <!-- Left Side: Mark Attendance -->
-      <div class="card big-card">
-        <h2>Mark Attendance</h2>
-        <p>Center your face in the frame and click the button below.</p>
-        <div class="video-container">
-          <video id="video" width="640" height="480" autoplay playsinline></video>
-          <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
-          <div class="scan-line"></div>
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Left: Camera + Scan -->
+      <article class="card-shadow rounded-2xl p-5 bg-gradient-to-b from-slate-800/50 to-slate-900/40 glass-border glass relative overflow-hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Mark Attendance</h2>
+          <span class="text-sm text-slate-400">Center your face and tap Scan</span>
         </div>
-        <button id="capture-btn">📷 Scan Face</button>
-        <div id="result-container">
-          <p>Status: <span id="result-name">Awaiting Scan</span></p>
-        </div>
-      </div>
 
-      <!-- Right Side: Analytics + Admin -->
-      <div class="right-column">
-        <div class="card">
-          <h2>Check Student Analytics</h2>
-          <p>Enter a student's full name to view their attendance history.</p>
-          <form id="analytics-form">
-            <input type="text" id="analytics-name-input" placeholder="e.g., elon_musk" required>
-            <button type="submit">📊 View History</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Camera area -->
+          <div class="relative bg-black rounded-xl overflow-hidden video-wrap">
+            <video id="video" class="w-full h-full object-cover mirror" playsinline autoplay muted></video>
+            <canvas id="canvas" width="1280" height="960" class="hidden"></canvas>
+
+            <!-- overlay frame -->
+            <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div class="w-[86%] h-[70%] rounded-xl border-2 border-dashed border-indigo-500/40"></div>
+            </div>
+
+            <!-- scan line (hidden until scanning) -->
+            <div id="scan-line" class="scan-line hidden"></div>
+
+            <!-- small status badge -->
+            <div id="camera-badge" class="absolute left-4 top-4 bg-black/40 px-3 py-1 rounded-full text-xs text-slate-200 glass-border">Camera</div>
+
+            <!-- fallback message when camera not allowed -->
+            <div id="camera-fallback" class="absolute inset-0 flex items-center justify-center bg-black/60 text-slate-300 p-4 hidden">
+              <div class="text-center">
+                <p class="mb-2">No camera input — try allowing camera or upload an image.</p>
+                <label for="upload" class="cursor-pointer inline-block px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500">Upload Image</label>
+                <input id="upload" type="file" accept="image/*" class="sr-only" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls + Result -->
+          <div class="flex flex-col gap-3">
+            <div class="rounded-xl p-4 bg-slate-800/40 glass-border">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-medium">Status</h3>
+                  <p id="result-name" class="text-slate-300 mt-1">Awaiting Scan</p>
+                </div>
+                <div id="result-icon" class="w-12 h-12 rounded-full flex items-center justify-center bg-slate-700">
+                  <!-- dynamic icon -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 12v.01M17 12a5 5 0 10-10 0 5 5 0 0010 0z"/></svg>
+                </div>
+              </div>
+
+              <div id="result-details" class="mt-3 text-sm text-slate-400">Position your face inside the frame and press <strong>Scan</strong>.</div>
+            </div>
+
+            <div class="flex gap-3">
+              <button id="capture-btn" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-indigo-500 hover:bg-indigo-400 transition shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h4l2-3h6l2 3h4v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                <span class="font-medium">Scan Face</span>
+              </button>
+
+              <button id="toggle-anim" class="px-4 py-3 rounded-2xl border border-slate-700 text-sm">Toggle Guide</button>
+            </div>
+
+            <div class="mt-auto text-xs text-slate-400">Tip: Use good lighting and keep camera at eye level for best results.</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Right: Analytics + Admin -->
+      <aside class="space-y-6">
+        <div class="rounded-2xl p-5 card-shadow glass-border glass">
+          <h3 class="text-lg font-semibold mb-2">Check Student Analytics</h3>
+          <p class="text-sm text-slate-400 mb-4">Enter student's username (underscores allowed) to view attendance history.</p>
+          <form id="analytics-form" class="flex gap-2">
+            <input id="analytics-name-input" type="text" placeholder="e.g., elon_musk" required class="flex-1 px-3 py-2 rounded-xl bg-slate-800/40 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500" />
+            <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400">View</button>
           </form>
         </div>
 
-        <div class="card">
-          <h2>Admin Panel</h2>
-          <p>Manage students and attendance data.</p>
-          <a href="/admin" class="header-link">Go to Admin Dashboard →</a>
+        <div class="rounded-2xl p-5 card-shadow glass-border glass">
+          <h3 class="text-lg font-semibold mb-2">Admin Panel</h3>
+          <p class="text-sm text-slate-400 mb-4">Manage students, enroll faces and export attendance.</p>
+          <div class="flex gap-3">
+            <a href="/admin" class="flex-1 rounded-xl px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-center">Enroll</a>
+            <a href="/admin" class="flex-1 rounded-xl px-4 py-2 bg-slate-700 hover:bg-slate-600 text-center">Export</a>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
 
+        <div class="rounded-2xl p-5 card-shadow glass-border glass">
+          <h3 class="text-lg font-semibold mb-2">Live Logs</h3>
+          <ul id="live-logs" class="text-sm text-slate-300 max-h-48 overflow-auto divide-y divide-slate-700/40">
+            <!-- dynamic entries -->
+          </ul>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="mt-8 text-center text-slate-500 text-sm">Built with ❤️ by Distracted Coders</footer>
+  </main>
   <script>
-    // Dark Mode Toggle
-    const toggleBtn = document.getElementById("darkmode-toggle");
-    const body = document.body;
+    const themeButton = document.getElementById("themeButton");
 
-    if (localStorage.getItem("theme") === "dark") {
-      body.classList.add("dark-mode");
-      toggleBtn.textContent = "☀️";
+    // Apply saved theme
+    if (localStorage.theme === "dark") {
+      document.documentElement.classList.add("dark");
+      themeButton.innerHTML = feather.icons.sun.toSvg();
+    } else {
+      themeButton.innerHTML = feather.icons.moon.toSvg();
     }
 
-    toggleBtn.addEventListener("click", () => {
-      body.classList.toggle("dark-mode");
-      if (body.classList.contains("dark-mode")) {
-        toggleBtn.textContent = "☀️";
-        localStorage.setItem("theme", "dark");
-      } else {
-        toggleBtn.textContent = "🌙";
-        localStorage.setItem("theme", "light");
-      }
+    themeButton.addEventListener("click", () => {
+      const isDark = document.documentElement.classList.toggle("dark");
+      localStorage.theme = isDark ? "dark" : "light";
+      themeButton.innerHTML = isDark
+        ? feather.icons.sun.toSvg()
+        : feather.icons.moon.toSvg();
     });
   </script>
+  <!-- Inline script for interactions (you can split into file) -->
+  <script>
+    // Small helper to toggle dark/light theme (tailwind supports 'dark' class on html)
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    (function initTheme() {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'light') document.documentElement.classList.remove('dark');
+      else document.documentElement.classList.add('dark');
+      updateThemeIcon();
+    })();
+    function updateThemeIcon() {
+      if (document.documentElement.classList.contains('dark')) {
+        themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+      } else {
+        themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2m-14 0H3m15.36 6.36l-1.41-1.41M6.05 6.05L4.64 4.64m12.72 0l-1.41 1.41M6.05 17.95l-1.41 1.41"/>';
+      }
+    }
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      updateThemeIcon();
+    });
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+    // Elements
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const resultName = document.getElementById('result-name');
+    const resultDetails = document.getElementById('result-details');
+    const resultIcon = document.getElementById('result-icon');
+    const scanLine = document.getElementById('scan-line');
+    const cameraFallback = document.getElementById('camera-fallback');
+    const cameraBadge = document.getElementById('camera-badge');
+    const liveLogs = document.getElementById('live-logs');
+    const upload = document.getElementById('upload');
+
+    let stream = null;
+    let guideVisible = true;
+
+    // Try to open camera
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        video.srcObject = stream;
+        await video.play();
+        cameraFallback.classList.add('hidden');
+        cameraBadge.classList.remove('hidden');
+      } catch (err) {
+        console.warn('Camera not available', err);
+        cameraFallback.classList.remove('hidden');
+        cameraBadge.classList.add('hidden');
+      }
+    }
+    startCamera();
+
+    // Toggle guide
+    document.getElementById('toggle-anim').addEventListener('click', () => {
+      guideVisible = !guideVisible;
+      document.querySelector('.video-wrap .border-dashed')?.classList.toggle('hidden', !guideVisible);
+    });
+
+    function pushLog(text, type = 'info') {
+      const li = document.createElement('li');
+      li.className = 'py-2 px-1';
+      li.innerHTML = `<div class=\"flex items-center justify-between gap-2\"><div class=\"text-xs text-slate-300\">${new Date().toLocaleTimeString()} — ${text}</div></div>`;
+      liveLogs.prepend(li);
+      // keep max 40 entries
+      while (liveLogs.children.length > 40) liveLogs.removeChild(liveLogs.lastChild);
+    }
+
+    // Capture and send
+    captureBtn.addEventListener('click', async () => {
+      // draw video to canvas (use same aspect)
+      if (!video || (video.readyState < 2 && !upload.files.length)) {
+        resultName.textContent = 'Camera not ready';
+        return;
+      }
+
+      let payload;
+
+      if (upload.files.length) {
+        // use uploaded file if present
+        const file = upload.files[0];
+        payload = await fileToDataUrl(file);
+      } else {
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 960;
+        const ctx = canvas.getContext('2d');
+        // mirror back so the server sees non-mirrored image (flip horizontally)
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+        ctx.restore();
+        payload = canvas.toDataURL('image/jpeg', 0.9);
+      }
+
+      // UI: processing state
+      resultName.textContent = 'Processing...';
+      resultDetails.textContent = 'Analyzing face — please hold still.';
+      resultIcon.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 animate-spin\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 4v4m0 8v4m8-8h-4M4 12H0m15.364-6.364l-2.828 2.828M8.464 15.536l-2.828 2.828m12.728 0l-2.828-2.828M8.464 8.464L5.636 5.636\"/></svg>`;
+      scanLine.classList.remove('hidden');
+      scanLine.classList.add('block');
+
+      // Send to server
+      try {
+        const resp = await fetch('/recognize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: payload }),
+        });
+        const data = await resp.json();
+
+        // sample expected: { name: 'elon_musk', confidence: 0.97 }
+        if (data && data.name && data.name !== 'Unknown' && !data.name.includes('No face')) {
+          const display = data.name.replace(/_/g, ' ');
+          resultName.innerHTML = `<strong class='text-emerald-300'>Welcome, ${display}!</strong>`;
+          resultDetails.textContent = `Confidence: ${Math.round((data.confidence||0)*100)}%`;
+          resultIcon.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 text-emerald-400\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M5 13l4 4L19 7\"/></svg>`;
+          pushLog(`${display} recognized (${Math.round((data.confidence||0)*100)}%)`, 'success');
+        } else {
+          // unknown or no face
+          const reason = (data && data.name) ? data.name : 'Unknown';
+          resultName.textContent = reason.includes('No face') ? 'No face detected' : 'Unknown Person';
+          resultDetails.textContent = 'Try again or enroll the face in Admin.';
+          resultIcon.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 text-rose-400\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"/></svg>`;
+          pushLog(`Unrecognized or no face`, 'warn');
+        }
+      } catch (err) {
+        console.error(err);
+        resultName.textContent = 'Recognition Error';
+        resultDetails.textContent = 'Check server or network.';
+        resultIcon.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 text-rose-400\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M18.364 5.636l-1.414 1.414M6.05 17.95l-1.414 1.414M5.636 5.636l12.728 12.728\"/></svg>`;
+        pushLog('Server error during recognition', 'error');
+      } finally {
+        scanLine.classList.add('hidden');
+      }
+    });
+
+    // file to dataURL helper
+    function fileToDataUrl(file) {
+      return new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result);
+        reader.onerror = rej;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // analytics form
+    document.getElementById('analytics-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const v = document.getElementById('analytics-name-input').value.trim().replace(/\s+/g, '_');
+      if (v) window.location.href = `/analytics/${encodeURIComponent(v)}`;
+    });
+
+    // upload change
+    upload.addEventListener('change', () => {
+      if (upload.files.length) {
+        cameraFallback.classList.add('hidden');
+        resultName.textContent = 'Ready to process uploaded image';
+      }
+    });
+
+    // Feather icons (optional)
+    feather && feather.replace();
+  </script>
 </body>
 </html>

@@ -1,48 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="antialiased">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Analytics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root { --glass-bg: rgba(255,255,255,0.06); }
+    .glass { background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); backdrop-filter: blur(6px); }
+    .card-shadow { box-shadow: 0 8px 30px rgba(2,6,23,0.12); }
+  </style>
 </head>
-<body>
-    <div class="container analytics-container">
-        <h1>Attendance Analytics for <span id="student-name-title">{{ student_name.replace('_', ' ') }}</span></h1>
-        
-        <div class="card summary-card">
-            <h2>Total Days Present</h2>
-            <p id="total-days">--</p>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100 min-h-screen p-6">
+  <main class="w-full max-w-6xl mx-auto">
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Analytics for <span id="student-name-title">{{ student_name.replace('_', ' ') }}</span></h1>
+        <p class="mt-1 text-slate-400">Attendance history, insights, and logs.</p>
+      </div>
+
+      <div>
+        <a href="/" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 transition shadow-lg">
+          ← Back
+        </a>
+      </div>
+    </header>
+
+    <!-- Grid -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left 2/3 -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Total Days -->
+        <div class="rounded-2xl p-6 card-shadow glass">
+          <h2 class="text-lg font-semibold mb-2">Total Days Present</h2>
+          <p id="total-days" class="text-5xl font-bold text-emerald-400">--</p>
         </div>
 
-        <div class="card">
-            <h2>Attendance Over Time</h2>
-            <div class="chart-container">
-                <canvas id="attendanceChart"></canvas>
-            </div>
+        <!-- Chart -->
+        <div class="rounded-2xl p-6 card-shadow glass">
+          <h2 class="text-lg font-semibold mb-4">Attendance Over Time</h2>
+          <div class="h-80">
+            <canvas id="attendanceChart"></canvas>
+          </div>
         </div>
+      </div>
 
-        <div class="card">
-            <h2>Date-wise Attendance Log</h2>
-            <table id="attendance-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Time of First Entry</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
+      <!-- Right 1/3 -->
+      <aside class="space-y-6">
+        <div class="rounded-2xl p-6 card-shadow glass">
+          <h2 class="text-lg font-semibold mb-4">Date-wise Attendance Log</h2>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-slate-400 border-b border-slate-700/50">
+                <th class="py-2 text-left">Date</th>
+                <th class="py-2 text-left">First Entry</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-table" class="divide-y divide-slate-700/30">
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
         </div>
-        
-        <a href="/" class="admin-link">&larr; Back to Attendance Page</a>
-    </div>
+      </aside>
+    </section>
 
-    <script>
-        const studentName = "{{ student_name }}";
-    </script>
-    <script src="{{ url_for('static', filename='analytics.js') }}"></script>
+    <footer class="mt-8 text-center text-slate-500 text-sm">Built with ❤️ by Distracted Coders</footer>
+  </main>
+
+  <script>
+    const studentName = "{{ student_name }}";
+  </script>
+  <script src="{{ url_for('static', filename='analytics.js') }}"></script>
+
+  <script>
+    // Enhance chart defaults
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+    Chart.defaults.color = "#cbd5e1";
+  </script>
 </body>
 </html>

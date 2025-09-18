@@ -163,7 +163,7 @@ def recognize_face():
             name = known_names[best_match_index]
             student_id = student_ids[best_match_index]
             log_attendance(student_id, name)
-            return jsonify({'name': name})
+            return jsonify({'name': name, 'confidence': float(1 - face_distances[best_match_index])})
 
     return jsonify({'name': 'Unknown'})
 
@@ -242,7 +242,6 @@ def rename_student():
 
 # --- API: Analytics ---
 @app.route('/api/analytics/<name>', methods=['GET'])
-@login_required
 def get_analytics_data(name):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -258,10 +257,16 @@ def get_analytics_data(name):
     records = cursor.fetchall()
     conn.close()
 
+    # Convert to strings
+    for r in records:
+        r['date'] = r['date'].strftime("%Y-%m-%d")
+        r['timestamp'] = r['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
+
     total_days = len({r['date'] for r in records})
     records.sort(key=lambda x: x['date'])
 
     return jsonify({'total_days': total_days, 'records': records})
+
 
 
 # --- API: List Students (for dashboard.js) ---
